@@ -9,6 +9,7 @@
       mode: 0644
     tags:
       - network-interfaces-create-directory
+    when: (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
 
   - name: all interfaces
     template:
@@ -18,6 +19,7 @@
     notify: restart network-interfaces
     tags:
       - network-interfaces-all-interfaces
+    when: (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
 
   - name: list network interfaces
     command: >
@@ -26,8 +28,9 @@
     register: _network_interfaces_existing_files
     tags:
       - network-interfaces-list-network-interfaces
-
-  when: network_interfaces_interfaces | length > 0
+  when:
+    - (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
+    - network_interfaces_interfaces | length > 0
   tags:
     - configuration
     - network-interfaces
@@ -43,6 +46,7 @@
     - configuration
     - network-interfaces
     - network-interfaces-configurations
+  when: (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
 
 - name: configured files
   set_fact:
@@ -54,6 +58,7 @@
     - configuration
     - network-interfaces
     - network-interfaces-configured-files
+  when: (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
 
 - name: remove configurations
   file:
@@ -62,6 +67,7 @@
   when:
     - network_interfaces_manage_devices
     - item not in network_interfaces_configured_files
+    - (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
   with_items: "{{ _network_interfaces_existing_files.stdout_lines | default([]) }}"
   tags:
     - configuration
@@ -76,6 +82,7 @@
   when:
     - item.changed
     - item.item.auto | default(true)
+    - (ansible_distribution == "Debian" ) or (ansible_distribution == "Ubuntu")
   with_items: "{{ _network_interfaces_configuration_result.results | default([]) }}"
   tags:
     - configuration
